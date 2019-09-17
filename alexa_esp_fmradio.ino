@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <ESPAsyncWebServer.h>
 
 
 #define SERIAL_BAUDRATE                 115200
@@ -26,6 +27,22 @@ void wifiSetup() {
   Serial.printf("[WIFI] STA Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
 }
 
+/* web server */
+AsyncWebServer server(80);
+void serverSetup() {
+  // custom entry point
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hello, world");
+  });
+
+  server.onNotFound([](AsyncWebServerRequest *request) {
+    request->send(404, "text/plain", "Not found");
+  });
+
+  // start
+  server.begin();
+}
+
 void setup() {
   // init debug serial port
   Serial.begin(SERIAL_BAUDRATE);
@@ -36,6 +53,9 @@ void setup() {
 
   // WiFi
   wifiSetup();
+
+  // web server
+  serverSetup();
 
 }
 

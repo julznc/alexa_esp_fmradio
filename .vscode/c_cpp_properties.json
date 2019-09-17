@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "/home/yus/.arduino15/packages/esp8266/tools/**",
-                "/home/yus/.arduino15/packages/esp8266/hardware/esp8266/2.5.2/**"
+                "/home/yus/.arduino15/packages/esp8266/hardware/esp8266/2.5.2/**",
+                "/home/yus/Arduino/libraries/ESPAsyncTCP/src",
+                "/home/yus/Arduino/libraries/ESPAsyncWebServer/src"
             ],
             "forcedInclude": [
                 "/home/yus/.arduino15/packages/esp8266/hardware/esp8266/2.5.2/cores/esp8266/Arduino.h"
