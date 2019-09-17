@@ -1,9 +1,21 @@
+#include <ESP8266WiFi.h>
+
+#define SERIAL_BAUDRATE                 115200
+#define LED                             0
+
 void setup() {
-  // put your setup code here, to run once:
+  // Init debug serial port
+  Serial.begin(SERIAL_BAUDRATE);
+  Serial.println();
+
+  pinMode(LED, OUTPUT);
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  digitalWrite(LED, HIGH);
+  delay(500);
+  digitalWrite(LED, LOW);
+  delay(500);
 
 }

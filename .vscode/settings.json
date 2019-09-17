@@ -1,0 +1,6 @@
+{
+    "arduino.path": "/opt/arduino/arduino-1.8.9",
+    "arduino.additionalUrls": "http://arduino.esp8266.com/stable/package_esp8266com_index.json",
+    "arduino.defaultBaudRate": 115200,
+    "arduino.logLevel": "info"
+}
