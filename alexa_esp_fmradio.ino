@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <RDA5807M.h>
 #include <fauxmoESP.h>
 
 
@@ -9,6 +10,7 @@
 #define LED_PIN                         (0)
 
 
+RDA5807M radio;
 fauxmoESP fauxmo;
 
 
@@ -70,6 +72,13 @@ void setup() {
   // LED
   pinMode(LED_PIN, OUTPUT);
 
+  // fm receiver
+  radio.init();
+  radio.setBandFrequency(RADIO_BAND_FM, 10190);
+  radio.setVolume(4);
+  radio.setMono(false);
+  radio.setMute(false);
+
   // WiFi
   wifiSetup();
 
@@ -95,11 +104,18 @@ void loop() {
   // poll udp packets
   fauxmo.handle();
 
-  // debug free heap
+  char s[12];
   static unsigned long last_ms = millis();
   if (millis() - last_ms > 5000) {
     last_ms = millis();
+
+    // debug free heap
     Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
+
+    // debug radio chip data
+    radio.formatFrequency(s, sizeof(s));
+    Serial.print("Station:"); Serial.println(s);
+    Serial.print("Radio:"); radio.debugRadioInfo();
   }
 
 }
