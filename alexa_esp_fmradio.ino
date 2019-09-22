@@ -3,9 +3,10 @@
 #include <RDA5807M.h>
 #include <fauxmoESP.h>
 
+#include "webserver.h"
+#include "credentials.h" // define ssid and password here
 
 #define VIRTUAL_DEVICE_NAME             "fm-radio"
-#define WEBSERVER_PORT                  (80)
 #define SERIAL_BAUDRATE                 (115200)
 #define LED_PIN                         (0)
 
@@ -15,7 +16,6 @@ fauxmoESP fauxmo;
 
 
 /* WiFi */
-#include "credentials.h" // define ssid and password here
 void wifiSetup() {
   // set module to station mode
   WiFi.mode(WIFI_STA);
@@ -40,7 +40,17 @@ AsyncWebServer server(WEBSERVER_PORT);
 void serverSetup() {
   // custom entry point
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hello, world");
+    request->send(200, "text/html", INDEX_HTML);
+  });
+
+  server.on("/config", HTTP_POST, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/html", REDIRECT_HTML);
+    String freq = request->arg("frequency");
+    String vol = request->arg("volume");
+    //Serial.print(freq.c_str()); Serial.println();
+    //Serial.print(vol.c_str()); Serial.println();
+    radio.setFrequency((uint16_t)(freq.toFloat() * 100));
+    radio.setVolume((uint8_t)((vol.toInt() * 15) / 100)); // 0 to 15
   });
 
   // callbacks
@@ -105,8 +115,8 @@ void loop() {
   fauxmo.handle();
 
   char s[12];
-  static unsigned long last_ms = millis();
-  if (millis() - last_ms > 5000) {
+  static unsigned long last_ms = 0;
+  if (millis() - last_ms > 10000) {
     last_ms = millis();
 
     // debug free heap
