@@ -4,6 +4,7 @@
 #include <fauxmoESP.h>
 
 #include "webserver.h"
+#include "radiochannels.h"
 #include "credentials.h" // define ssid and password here
 
 #define VIRTUAL_DEVICE_NAME             "fm-radio"
@@ -113,10 +114,11 @@ void setup() {
       digitalWrite(LED_PIN, !state);
       radio.setMute(!state);
     } else if (0 == strcmp(device_name, CHANNEL_DEVICE_NAME)) {
-      // 1   -> ch 201 => 88.1
-      // 255 -> ch 300 => 107.9
-      uint32_t freq = (((uint32_t)value * 99) + 111788) / 127;
-      radio.setFrequency((uint16_t)freq * 10);
+      uint8_t channel = STATEVALUE_TO_CHANNEL(value);
+      if ((channel < 1) || (channel > MAX_FM_CHANNEL)) {
+        channel = DEFAULT_FM_CHANNEL;
+      }
+      radio.setFrequency(FM_STATIONS[channel - 1 /*index 0*/]);
     } else if (0 == strcmp(device_name, VOLUME_DEVICE_NAME)) {
       uint16_t vol = ((uint16_t)value* 15) / 255;
       radio.setVolume((uint8_t)vol);
