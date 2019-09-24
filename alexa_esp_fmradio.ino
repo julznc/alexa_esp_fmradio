@@ -7,6 +7,8 @@
 #include "credentials.h" // define ssid and password here
 
 #define VIRTUAL_DEVICE_NAME             "fm-radio"
+#define CHANNEL_DEVICE_NAME             "fm-channel"
+#define VOLUME_DEVICE_NAME              "fm-volume"
 #define SERIAL_BAUDRATE                 (115200)
 #define LED_PIN                         (0)
 
@@ -102,10 +104,23 @@ void setup() {
 
   // add virtual devices
   fauxmo.addDevice(VIRTUAL_DEVICE_NAME);
+  fauxmo.addDevice(CHANNEL_DEVICE_NAME);
+  fauxmo.addDevice(VOLUME_DEVICE_NAME);
 
   fauxmo.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value) {
     Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name, state ? "ON" : "OFF", value);
-    digitalWrite(LED_PIN, !state);
+    if (0 == strcmp(device_name, VIRTUAL_DEVICE_NAME)) {
+      digitalWrite(LED_PIN, !state);
+      radio.setMute(!state);
+    } else if (0 == strcmp(device_name, CHANNEL_DEVICE_NAME)) {
+      // 1   -> ch 201 => 88.1
+      // 255 -> ch 300 => 107.9
+      uint32_t freq = (((uint32_t)value * 99) + 111788) / 127;
+      radio.setFrequency((uint16_t)freq * 10);
+    } else if (0 == strcmp(device_name, VOLUME_DEVICE_NAME)) {
+      uint16_t vol = ((uint16_t)value* 15) / 255;
+      radio.setVolume((uint8_t)vol);
+    }
   });
 
 }
